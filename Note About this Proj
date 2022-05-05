@@ -1,0 +1,86 @@
+1. We have connected Mongo DB and Server in our Proj
+
+2. Enable (Different ty]pes of) Middlewares to the Project in the index file
+
+3. Now Since Our first intention is to create AUTH and Authorization, so we created
+model named User  and route named Users
+
+4. In the Model create moidel schema here we have created schema for users.
+
+5. In the Router creats all the routing endpoints to communicate from browser.
+
+importent Note:
+* Here Model is "User" and Controller is "users"
+*
+
+
+
+
+"passport-jwt": A Passport strategy for authenticating with a JSON Web Token.
+
+jwt_payload is an object literal containing the decoded JWT payload.
+done is a passport error first callback accepting arguments done(error, user, info)
+An example configuration which reads the JWT from the http Authorization header with the scheme 'bearer':
+
+var JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt;
+var opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = 'secret';
+opts.issuer = 'accounts.examplesoft.com';
+opts.audience = 'yoursite.net';
+passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+    User.findOne({id: jwt_payload.sub}, function(err, user) {
+        if (err) {
+            return done(err, false);
+        }
+        if (user) {
+            return done(null, user);
+        } else {
+            return done(null, false);
+            // or you could create a new account
+        }
+    });
+}));
+
+
+
+
+Extracting the JWT from the request
+There are a number of ways the JWT may be included in a request. In order to remain as flexible as possible the JWT is parsed from the request by a user-supplied callback passed in as the jwtFromRequest parameter. This callback, from now on referred to as an extractor, accepts a request object as an argument and returns the encoded JWT string or null.
+
+Included extractors
+A number of extractor factory functions are provided in passport-jwt.ExtractJwt. These factory functions return a new extractor configured with the given parameters.
+
+fromHeader(header_name) creates a new extractor that looks for the JWT in the given http header
+fromBodyField(field_name) creates a new extractor that looks for the JWT in the given body field. You must have a body parser configured in order to use this method.
+fromUrlQueryParameter(param_name) creates a new extractor that looks for the JWT in the given URL query parameter.
+fromAuthHeaderWithScheme(auth_scheme) creates a new extractor that looks for the JWT in the authorization header, expecting the scheme to match auth_scheme.
+fromAuthHeaderAsBearerToken() creates a new extractor that looks for the JWT in the authorization header with the scheme 'bearer'
+fromExtractors([array of extractor functions]) creates a new extractor using an array of extractors provided. Each extractor is attempted in order until one returns a token.
+Writing a custom extractor function
+If the supplied extractors don't meet your needs you can easily provide your own callback. For example, if you are using the cookie-parser middleware and want to extract the JWT in a cookie you could use the following function as the argument to the jwtFromRequest option:
+
+var cookieExtractor = function(req) {
+    var token = null;
+    if (req && req.cookies)
+    {
+        token = req.cookies['jwt'];
+    }
+    return token;
+};
+Authenticate requests
+Use passport.authenticate() specifying 'JWT' as the strategy.
+
+app.post('/profile', passport.authenticate('jwt', { session: false }),
+    function(req, res) {
+        res.send(req.user.profile);
+    }
+);
+
+"To connect Passport in the index file"
+In a Connect or Express-based application, passport.initialize() middleware is required to
+initialize Passport. If your application uses persistent login sessions, passport.session()
+middleware must also be used.
+
+
